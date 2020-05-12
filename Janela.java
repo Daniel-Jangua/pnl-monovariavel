@@ -1,6 +1,5 @@
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,6 +24,10 @@ public class Janela extends JFrame{
     JRadioButton buni,bdic,fib,bis,newton,secau;
     JTextArea txtIt;
     ButtonGroup selecMet;
+
+    String f = "";
+    double a = 0, b = 0;
+    double deltaEpsilon = 0;
     
     Janela(String titulo){
         super(titulo);
@@ -126,8 +129,10 @@ public class Janela extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource() == buni || e.getSource() == bdic){
                     lblD.setText("Δ = ");
+                    txtD.setToolTipText("Valor do Delta");
                 }else{
                     lblD.setText("ε = ");
+                    txtD.setToolTipText("Valor do Epsilon");
                 }
             }
         };
@@ -162,8 +167,49 @@ public class Janela extends JFrame{
         txtFx.setToolTipText("Função para minimização");
         txtA.setToolTipText("Início do intervalo");
         txtB.setToolTipText("Fim do intervalo");
+        txtD.setToolTipText("Valor do Delta");
         txtX.setToolTipText("Solução do PNL");
         txtIt.setToolTipText("Descrição das iterações");
+        txtIt.setEditable(false);
+
+        btnGo.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                try{
+                    f = txtFx.getText();
+                    a = Double.parseDouble(txtA.getText());
+                    b = Double.parseDouble(txtB.getText());
+                    deltaEpsilon = Double.parseDouble(txtD.getText());
+                }catch(NullPointerException npe){
+                    JOptionPane.showMessageDialog(null, "Preencha todos os campos corretamente!\n\n"+npe.toString(),"Erro",JOptionPane.ERROR_MESSAGE);
+                    return;
+                }catch(NumberFormatException nfe){
+                    JOptionPane.showMessageDialog(null, "Preencha todos os caampos corretamente!\n\n"+nfe.toString(),"Erro",JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                try{
+                    Interpretador.FxR1(f, a);
+                }catch(Exception ex){
+                    JOptionPane.showMessageDialog(null, "Função inválida!\n\n"+ex.toString(),"Erro",JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if(buni.isSelected()){
+                    buscaUniforme(f, a, b, deltaEpsilon);
+                }else if(bdic.isSelected()){
+                    buscaDico(f, a, b, deltaEpsilon);
+                }else if(secau.isSelected()){
+                    secaoAurea(f, a, b, deltaEpsilon);
+                }else if(fib.isSelected()){
+                    fibonacci(f, a, b, deltaEpsilon);
+                }else if(bis.isSelected()){
+                    bissecao(f, a, b, deltaEpsilon);
+                }else{
+                    newton(f, a, b, deltaEpsilon);
+                }
+                
+            }
+        });
 
         this.setLayout(null);
         this.add(pnSup);
@@ -173,6 +219,30 @@ public class Janela extends JFrame{
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setResizable(false);
         this.setVisible(true);
+    }
+
+    public void buscaUniforme(String f, double a, double b, double delta){
+        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void buscaDico(String f, double a, double b, double delta){
+        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void secaoAurea(String f, double a, double b, double epsilon){
+        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void fibonacci(String f, double a, double b, double epsilon){
+        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void bissecao(String f, double a, double b, double epsilon){
+        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void newton(String f, double a, double b, double epsilon){
+        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
     }
 
     public static void main(String args []){
