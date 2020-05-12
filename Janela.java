@@ -26,8 +26,10 @@ public class Janela extends JFrame{
     ButtonGroup selecMet;
 
     String f = "";
-    double a = 0, b = 0;
-    double deltaEpsilon = 0;
+    double a = 0, b = 0, x = 0;
+    double delta = 0, epsilon = 0;
+
+    StringBuffer strIt = new StringBuffer();
     
     Janela(String titulo){
         super(titulo);
@@ -35,7 +37,7 @@ public class Janela extends JFrame{
         JLabel lblA = new JLabel("a = ");
         JLabel lblB = new JLabel("b = ");
         JLabel lblD = new JLabel("Δ = ");
-        //JLabel lblE = new JLabel("ε = ");
+        JLabel lblE = new JLabel("ε = ");
         JLabel lblX = new JLabel("x* = ");
         txtFx = new JTextField(30);
         txtA = new JTextField(10);
@@ -93,9 +95,11 @@ public class Janela extends JFrame{
         txtA.setBounds(350, 20, 64, 20);
         txtB.setBounds(458, 20, 64, 20);
         lblD.setBounds(535, 20, 30, 16);
+        lblE.setBounds(535,55,30,16);
         txtD.setBounds(567, 20,64,20);
-        btnGo.setBounds(534,56,95,30);
-        btnClear.setBounds(534,97,95,30);
+        btnClear.setBounds(584,97,45,30);
+        btnGo.setBounds(534,97,45,30);
+        txtE.setBounds(567, 55, 64,20);
 
         JPanel pnSup = new JPanel(null);
         pnSup.add(lblFx);
@@ -109,6 +113,8 @@ public class Janela extends JFrame{
         pnSup.add(btnGo);
         pnSup.add(btnClear);
         pnSup.add(radioPanel);
+        pnSup.add(txtE);
+        pnSup.add(lblE);
 
         pnSup.setBorder(BorderFactory.createTitledBorder("Função, intervalo de busca e seleção do método"));
         UIManager.put("TitledBorder.border", new LineBorder(new Color(0,0,0), 1));
@@ -124,15 +130,26 @@ public class Janela extends JFrame{
         pnInf.add(lblX);
         pnInf.add(txtX);
 
+        txtD.setToolTipText("Valor do Delta");
+        txtE.setToolTipText("Valor do Epsilon");
+
+        txtD.setEditable(true);
+        txtE.setEditable(false);
+
         ActionListener radioChangeListener = new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(e.getSource() == buni || e.getSource() == bdic){
-                    lblD.setText("Δ = ");
-                    txtD.setToolTipText("Valor do Delta");
+                if(e.getSource() == buni){
+                    txtD.setEditable(true);
+                    txtE.setEditable(false);
+                    txtE.setText("");
+                }else if(e.getSource() == bdic){
+                    txtD.setEditable(true);
+                    txtE.setEditable(true);
                 }else{
-                    lblD.setText("ε = ");
-                    txtD.setToolTipText("Valor do Epsilon");
+                    txtD.setEditable(false);
+                    txtE.setEditable(true);
+                    txtD.setText("");
                 }
             }
         };
@@ -152,6 +169,7 @@ public class Janela extends JFrame{
                 txtB.setText("");
                 txtD.setText("");
                 txtX.setText("");
+                txtE.setText("");
                 txtIt.setText("");
             }
         });
@@ -179,7 +197,10 @@ public class Janela extends JFrame{
                     f = txtFx.getText();
                     a = Double.parseDouble(txtA.getText());
                     b = Double.parseDouble(txtB.getText());
-                    deltaEpsilon = Double.parseDouble(txtD.getText());
+                    if(buni.isSelected() || bdic.isSelected())
+                        delta = Double.parseDouble(txtD.getText());
+                    if(!buni.isSelected())
+                        epsilon = Double.parseDouble(txtE.getText());
                 }catch(NullPointerException npe){
                     JOptionPane.showMessageDialog(null, "Preencha todos os campos corretamente!\n\n"+npe.toString(),"Erro",JOptionPane.ERROR_MESSAGE);
                     return;
@@ -193,19 +214,19 @@ public class Janela extends JFrame{
                     JOptionPane.showMessageDialog(null, "Função inválida!\n\n"+ex.toString(),"Erro",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
+                strIt.delete(0, strIt.length());
                 if(buni.isSelected()){
-                    buscaUniforme(f, a, b, deltaEpsilon);
+                    buscaUniforme(f, a, b, delta);
                 }else if(bdic.isSelected()){
-                    buscaDico(f, a, b, deltaEpsilon);
+                    buscaDico(f, a, b, delta, epsilon);
                 }else if(secau.isSelected()){
-                    secaoAurea(f, a, b, deltaEpsilon);
+                    secaoAurea(f, a, b, epsilon);
                 }else if(fib.isSelected()){
-                    fibonacci(f, a, b, deltaEpsilon);
+                    fibonacci(f, a, b, epsilon);
                 }else if(bis.isSelected()){
-                    bissecao(f, a, b, deltaEpsilon);
+                    bissecao(f, a, b, epsilon);
                 }else{
-                    newton(f, a, b, deltaEpsilon);
+                    newton(f, a, b, epsilon);
                 }
                 
             }
@@ -221,12 +242,100 @@ public class Janela extends JFrame{
         this.setVisible(true);
     }
 
-    public void buscaUniforme(String f, double a, double b, double delta){
-        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+    public void buscaUniforme(String func, double val_a, double val_b, double delta){
+        //JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+        double p,q,fp,fq;
+        boolean refinado = false;
+        p = val_a;
+        q = p + delta;
+        x = val_a;
+        int k = 0;
+        strIt.append(" k \t p \t q \t f(p) \t f(q) \t f(q) < f(p) \t Δ \n");
+        while(q <= val_b){
+            k++;
+            try {
+                fp = Interpretador.FxR1(func, p);
+                fq = Interpretador.FxR1(func, q);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro na avaliação da função!"+e.toString(), "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            strIt.append(String.format(" %02d\t%.6f \t %.6f \t %.6f \t %.6f \t",k,p,q,fp,fq));
+            if(fq > fp){ // função está crescendo
+                strIt.append(String.format("        F\t %.6f \n",delta));
+                if(k == 1){ // preimeira iteração
+                    txtX.setText(""+x);
+                    strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fp +"\n");
+                    txtIt.setText(strIt.toString());
+                    return;
+                }else if(!refinado){ // refinar
+                    refinado = true;
+                    p = p-delta;
+                    delta = delta/10;
+                    q = p + delta;
+                }else{ // fim
+                    x = p;
+                    txtX.setText(""+x);
+                    strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fp +"\n");
+                    txtIt.setText(strIt.toString());
+                    return;
+                }
+            }else{
+                strIt.append(String.format("        V\t %.6f \n",delta));
+                p = q;
+                q = p + delta;
+            }
+        }
+        x = val_b;
+        txtX.setText(""+x);
+        double fb = 0;
+        try{
+            fb = Interpretador.FxR1(func, val_b);
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+ex.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fb +"\n");
+        txtIt.setText(strIt.toString());
+        return;
     }
 
-    public void buscaDico(String f, double a, double b, double delta){
-        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+    public void buscaDico(String func, double val_a, double val_b, double val_delta, double val_epsilon){
+        //JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+        double val_x = 0, val_z = 0,base = 0;
+        double fx = 0,fz = 0;
+        int k = 0;
+        strIt.append(" k \t a \t b \t x \t z \t f(x) \t f(z) \t b-a \n");
+        while(val_b-val_a >= val_epsilon){
+            k++;
+            base = (val_b+val_a)/2;
+            val_x = base - val_delta;
+            val_z = base + val_delta;
+            try{
+                fx = Interpretador.FxR1(func, val_x);
+                fz = Interpretador.FxR1(func, val_z);
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            strIt.append(String.format(" %02d\t%.6f \t %.6f \t %.6f \t %.6f \t %.6f \t %.6f \t %.6f\n",k,val_a,val_b,val_x,val_z,fx,fz,val_b-val_a));
+            if(fx > fz)
+                val_a = val_x;
+            else
+                val_b = val_z;
+        }
+        x = (val_a+val_b)/2;
+        try{
+            fx = Interpretador.FxR1(func, x);
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+ex.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        txtX.setText(""+x);
+        strIt.append(String.format(" %02d\t%.6f \t %.6f \t -------- \t -------- \t -------- \t -------- \t %.6f\n",k+1,val_a,val_b,val_b-val_a));
+        strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fx +"\n");
+        txtIt.setText(strIt.toString());
+        return;
     }
 
     public void secaoAurea(String f, double a, double b, double epsilon){
