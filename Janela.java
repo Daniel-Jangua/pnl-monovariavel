@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.imageio.*;
+import java.lang.Math;
 
 public class Janela extends JFrame{
 
@@ -342,7 +343,9 @@ public class Janela extends JFrame{
     public void secaoAurea(String func, double val_a, double val_b, double val_epsilon){
         //JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
         double mi = 0, lambda = 0, fMi = 0, fLam = 0;
-        double alfa = 0.6180, beta = 0.3820;
+        double alfa = (-1 + Math.sqrt(5)) / 2, beta;
+        beta = 1 - alfa;
+        
         int k = 0;
         strIt.append(" k \t a \t b \t μ \t λ \t f(μ) \t f(λ) \t f(μ)<f(λ) \n");
         while(val_b - val_a > val_epsilon) {
@@ -367,6 +370,7 @@ public class Janela extends JFrame{
 	        	lambda = val_a + alfa*(val_b - val_a);
 	        	strIt.append("        F\n");
 	        }
+	        k++;
         }
         strIt.append(String.format(" --------\t%.6f \t %.6f \t -------- \t -------- \t -------- \t -------- \t\n",val_a,val_b));
         x = (val_b+val_a)/2;
