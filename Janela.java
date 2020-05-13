@@ -13,6 +13,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.imageio.*;
@@ -338,19 +339,65 @@ public class Janela extends JFrame{
         return;
     }
 
-    public void secaoAurea(String f, double a, double b, double epsilon){
+    public void secaoAurea(String func, double val_a, double val_b, double val_epsilon){
+        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+        
+    }
+
+    public void fibonacci(String func, double val_a, double val_b, double val_epsilon){
+        //JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+        double fn = (val_b-val_a)/val_epsilon;
+        ArrayList<Integer> list_fib = new ArrayList<Integer>();
+        int n = -1;
+        do{
+            n++;
+            if(n == 0 || n == 1)
+                list_fib.add(1);
+            else
+                list_fib.add(list_fib.get(n-2) + list_fib.get(n-1));
+        }while(list_fib.get(n) <= fn);
+        strIt.append(" k \t a \t b \t μ \t λ \t f(μ) \t f(λ) \t f(μ)>f(λ) \n");
+        int maxIt = n - 1;
+        double mi = 0, lambda = 0,fmi = 0,flam = 0;
+        for(int k = 0; k < maxIt; k++){
+            mi = val_a + list_fib.get(n-k-2)/Double.valueOf(list_fib.get(n-k))*(val_b-val_a);
+            lambda = val_a + list_fib.get(n-k-1)/Double.valueOf(list_fib.get(n-k))*(val_b-val_a);
+            try {
+                fmi = Interpretador.FxR1(func, mi);
+                flam = Interpretador.FxR1(func, lambda);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            strIt.append(String.format(" %02d\t%.6f \t %.6f \t %.6f \t %.6f \t %.6f \t %.6f \t",k,val_a,val_b,mi,lambda,fmi,flam));
+            if(fmi > flam){
+                val_a = mi;
+                strIt.append("        V\n");
+            }else{
+                val_b = lambda;
+                strIt.append("        F\n");
+            }
+        }
+        strIt.append(String.format(" --------\t%.6f \t %.6f \t -------- \t -------- \t -------- \t -------- \t\n",val_a,val_b));
+        x = (val_b+val_a)/2;
+        double fx = 0;
+        try{
+            fx = Interpretador.FxR1(func, x);
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+ex.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fx +"\n");
+        txtIt.setText(strIt.toString());
+        txtX.setText(""+x);
+        return;
+    }
+
+    public void bissecao(String func, double val_a, double val_b, double val_epsilon){
         JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
     }
 
-    public void fibonacci(String f, double a, double b, double epsilon){
-        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public void bissecao(String f, double a, double b, double epsilon){
-        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public void newton(String f, double a, double b, double epsilon){
+    public void newton(String func, double val_a, double val_b, double val_epsilon){
         JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
     }
 
