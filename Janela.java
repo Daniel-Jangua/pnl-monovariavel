@@ -444,6 +444,55 @@ public class Janela extends JFrame{
         JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
     }
 
+    public double derivadaPrimeira(String f, double x ){
+        double eps = 1e-8;
+        double h = 1.0, fx = 0, fx_ant = Double.MAX_VALUE;
+        double xplus_h = 0, xminus_h = 0;
+        double cont = 0;
+
+        double err;
+        double err_ant = Double.MAX_VALUE;
+
+        
+        for(int i=0; i < 10; i++){
+            try {
+                xplus_h = Interpretador.FxR1(f, x + h);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+                return 1;
+            }
+            
+            try {
+                xminus_h = Interpretador.FxR1(f, x - h);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+                return 1;
+            }
+            fx = (xplus_h - xminus_h)/(2*h);
+            
+            err = erro(fx, fx_ant);
+            if (err < eps) {
+                break;
+            }
+
+            fx_ant = fx;
+
+            if (err_ant < err) {
+                // Erro crescente
+                break;
+            }
+            err_ant = err;
+            h = h/2;
+        }
+      //  System.out.println("valor fora do LACO de D = " + d);
+        return fx;
+    }
+
+    private static double erro(double fx, double fx_ant) {
+        double denom = Math.max(Math.abs(fx), 1);
+        return Math.abs(fx - fx_ant) / denom;
+    }
+
     public static void main(String args []){
         new Janela("Trabalho PO II: PNL Monovariável");
     }
