@@ -386,7 +386,7 @@ public class Janela extends JFrame{
         txtX.setText(""+x);
         return;
     }
-
+    //----------------------------------------METODO DE FIBONACCI----------------------------------------------------------------
     public void fibonacci(String func, double val_a, double val_b, double val_epsilon){
         //JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
         double fn = (val_b-val_a)/val_epsilon;
@@ -435,25 +435,25 @@ public class Janela extends JFrame{
         txtX.setText(""+x);
         return;
     }
-
+    //----------------------------------------METODO DA BISSECAO----------------------------------------------------------------
     public void bissecao(String func, double val_a, double val_b, double val_epsilon){
         JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
     }
-
+    //----------------------------------------METODO DE NEWTON----------------------------------------------------------------
     public void newton(String func, double val_a, double val_b, double val_epsilon){
+        System.out.println("\nValor da derivada PRIMEIRA: \n" + derivadaPrimeira(f, a));
+        System.out.println("\nValor da derivada SEGUNDA: \n" + derivadaSegunda(f, a));
         JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
     }
-
+    //----------------------------------------DERIVADA PRIMEIRA DE f(x)----------------------------------------------------------------
     public double derivadaPrimeira(String f, double x ){
         double eps = 1e-8;
         double h = 1.0, fx = 0, fx_ant = Double.MAX_VALUE;
-        double xplus_h = 0, xminus_h = 0;
-        double cont = 0;
+        double xplus_h = 0, xminus_h = 0; //xplus_h = f(x + h); xminus_h = f(x - h)
 
         double err;
         double err_ant = Double.MAX_VALUE;
 
-        
         for(int i=0; i < 10; i++){
             try {
                 xplus_h = Interpretador.FxR1(f, x + h);
@@ -469,6 +469,56 @@ public class Janela extends JFrame{
                 return 1;
             }
             fx = (xplus_h - xminus_h)/(2*h);
+            
+            err = erro(fx, fx_ant);
+            if (err < eps) {
+                break;
+            }
+
+            fx_ant = fx;
+
+            if (err_ant < err) {
+                // Erro crescente
+                break;
+            }
+            err_ant = err;
+            h = h/2;
+        }
+        return fx;
+    }
+
+    //----------------------------------------DERIVADA SEGUNDA DE f(x)----------------------------------------------------------------
+    public double derivadaSegunda(String f, double x ){
+        double eps = 1e-8;
+        double h = 1.0, fx = 0, fx_ant = Double.MAX_VALUE;
+        double xp_hh = 0, xm_hh = 0, dois_fx = 0; //xp_hh = (x+2h); xm_hh = (x-2h); dois_fx = 2*f(x) 
+
+        double err;
+        double err_ant = Double.MAX_VALUE;
+
+        for(int i=0; i < 10; i++){
+            try {
+                xp_hh = Interpretador.FxR1(f, x + (2*h));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+                return 1;
+            }
+            
+            try {
+                xm_hh = Interpretador.FxR1(f, x - (2*h));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+                return 1;
+            }
+
+            try {
+                dois_fx = 2 * Interpretador.FxR1(f, x);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+                return 1;
+            }
+
+            fx = (xp_hh - dois_fx + xm_hh)/(4 * h * h);
             
             err = erro(fx, fx_ant);
             if (err < eps) {
