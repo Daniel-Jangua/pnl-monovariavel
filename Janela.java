@@ -207,7 +207,7 @@ public class Janela extends JFrame{
                     JOptionPane.showMessageDialog(null, "Preencha todos os campos corretamente!\n\n"+npe.toString(),"Erro",JOptionPane.ERROR_MESSAGE);
                     return;
                 }catch(NumberFormatException nfe){
-                    JOptionPane.showMessageDialog(null, "Preencha todos os caampos corretamente!\n\n"+nfe.toString(),"Erro",JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Preencha todos os campos corretamente!\n\n"+nfe.toString(),"Erro",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 try{
@@ -253,7 +253,7 @@ public class Janela extends JFrame{
         x = val_a;
         int k = 0;
         strIt.append(" k \t p \t q \t f(p) \t f(q) \t f(q) < f(p) \t Δ \n");
-        while(q <= val_b){
+        while(q <= val_b && k < 10000){
             k++;
             try {
                 fp = Interpretador.FxR1(func, p);
@@ -289,6 +289,8 @@ public class Janela extends JFrame{
             }
         }
         x = val_b;
+        if(k >= 10000)
+            JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         txtX.setText(""+x);
         double fb = 0;
         try{
@@ -308,7 +310,7 @@ public class Janela extends JFrame{
         double fx = 0,fz = 0;
         int k = 0;
         strIt.append(" k \t a \t b \t x \t z \t f(x) \t f(z) \t b-a \n");
-        while(val_b-val_a >= val_epsilon){
+        while(val_b-val_a >= val_epsilon && k < 10000){
             k++;
             base = (val_b+val_a)/2;
             val_x = base - val_delta;
@@ -333,6 +335,8 @@ public class Janela extends JFrame{
             JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+ex.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        if(k >= 10000)
+            JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         txtX.setText(""+x);
         strIt.append(String.format(" %02d\t%.6f \t %.6f \t -------- \t -------- \t -------- \t -------- \t %.6f\n",k+1,val_a,val_b,val_b-val_a));
         strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fx +"\n");
@@ -348,7 +352,7 @@ public class Janela extends JFrame{
         
         int k = 0;
         strIt.append(" k \t a \t b \t μ \t λ \t f(μ) \t f(λ) \t f(μ)<f(λ) \n");
-        while(val_b - val_a > val_epsilon) {
+        while(val_b - val_a > val_epsilon && k < 10000) {
 	        mi = val_a + beta*(val_b - val_a);
 	        lambda = val_a + alfa*(val_b - val_a);
 	        try {
@@ -380,7 +384,9 @@ public class Janela extends JFrame{
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
             return;
-		}
+        }
+        if(k >= 10000)
+            JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fx +"\n");
         txtIt.setText(strIt.toString());
         txtX.setText(""+x);
@@ -402,7 +408,8 @@ public class Janela extends JFrame{
         strIt.append(" k \t a \t b \t μ \t λ \t f(μ) \t f(λ) \t f(μ)>f(λ) \n");
         int maxIt = n - 1;
         double mi = 0, lambda = 0,fmi = 0,flam = 0;
-        for(int k = 0; k < maxIt; k++){
+        int k;
+        for( k = 0; k < maxIt && k < 10000; k++){
             mi = val_a + list_fib.get(n-k-2)/Double.valueOf(list_fib.get(n-k))*(val_b-val_a);
             lambda = val_a + list_fib.get(n-k-1)/Double.valueOf(list_fib.get(n-k))*(val_b-val_a);
             try {
@@ -430,6 +437,8 @@ public class Janela extends JFrame{
             JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+ex.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        if(k >= 10000)
+            JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fx +"\n");
         txtIt.setText(strIt.toString());
         txtX.setText(""+x);
