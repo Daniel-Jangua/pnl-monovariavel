@@ -243,7 +243,7 @@ public class Janela extends JFrame{
         this.setResizable(false);
         this.setVisible(true);
     }
-
+    //----------------------------------------METODO DA BUSCA UNIFORME----------------------------------------------------------------
     public void buscaUniforme(String func, double val_a, double val_b, double delta){
         //JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
         double p,q,fp,fq;
@@ -303,7 +303,7 @@ public class Janela extends JFrame{
         txtIt.setText(strIt.toString());
         return;
     }
-
+    //----------------------------------------METODO DA BUSCA DICOTOMICA----------------------------------------------------------------
     public void buscaDico(String func, double val_a, double val_b, double val_delta, double val_epsilon){
         //JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
         double val_x = 0, val_z = 0,base = 0;
@@ -343,7 +343,7 @@ public class Janela extends JFrame{
         txtIt.setText(strIt.toString());
         return;
     }
-
+    //----------------------------------------METODO DA SECAO AUREA----------------------------------------------------------------
     public void secaoAurea(String func, double val_a, double val_b, double val_epsilon){
         //JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
         double mi = 0, lambda = 0, fMi = 0, fLam = 0;
@@ -446,13 +446,39 @@ public class Janela extends JFrame{
     }
     //----------------------------------------METODO DA BISSECAO----------------------------------------------------------------
     public void bissecao(String func, double val_a, double val_b, double val_epsilon){
-        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+        double num_it = 0, fx_linha = 0, xk = 0, x_otimo = 0, fx_otimo = 0;
+        double alfa = (-1 + Math.sqrt(5)) / 2;
+        double a = val_a; b = val_b;
+        int cont = 0;
+        num_it = Math.round(Math.abs(Math.log(val_epsilon/(b - a)) / Math.log(2)));
+        strIt.append(" k \t a \t b \t xk \t f '(xk)\n");
+        do {
+            xk = (a + b) / 2;
+            fx_linha = derivadaPrimeira(func, xk);
+            strIt.append(String.format(" %02d\t%.6f \t %.6f \t %.6f \t %.6f \n",cont+1 ,a ,b ,xk ,fx_linha ));
+            if(fx_linha > 0)
+                b = xk;
+            else if(fx_linha < 0)
+                a = xk; 
+            System.out.println("num it\n "+ cont);
+        } while (++cont < num_it);
+        x_otimo = (a + b) / 2;
+        strIt.append(String.format(" --------\t%.6f \t %.6f \t -------- \t -------- \t\n",a,b));
+        try {
+            fx_otimo = Interpretador.FxR1(func, x_otimo);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+        }
+        strIt.append("\n\tx* = " + x_otimo + "\n\tf(x*) = "+ fx_otimo +"\n");
+        txtIt.setText(strIt.toString());
+        txtX.setText(""+xk);
+        //JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
     }
     //----------------------------------------METODO DE NEWTON----------------------------------------------------------------
     public void newton(String func, double val_a, double val_b, double val_epsilon){
-        System.out.println("\nValor da derivada PRIMEIRA: \n" + derivadaPrimeira(f, a));
-        System.out.println("\nValor da derivada SEGUNDA: \n" + derivadaSegunda(f, a));
-        JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
+        
+       // JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
     }
     //----------------------------------------DERIVADA PRIMEIRA DE f(x)----------------------------------------------------------------
     public double derivadaPrimeira(String f, double x ){
