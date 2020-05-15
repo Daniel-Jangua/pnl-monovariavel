@@ -12,6 +12,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
+
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.awt.*;
@@ -448,19 +449,19 @@ public class Janela extends JFrame{
     public void bissecao(String func, double val_a, double val_b, double val_epsilon){
         double num_it = 0, fx_linha = 0, xk = 0, x_otimo = 0, fx_otimo = 0;
         double a = val_a; b = val_b;
-        int cont = 0;
+        int k = 0;
         num_it = Math.round(Math.abs(Math.log(val_epsilon/(b - a)) / Math.log(2)));
         strIt.append(" k \t a \t b \t xk \t f '(xk)\n");
         do {
             xk = (a + b) / 2;
             fx_linha = derivadaPrimeira(func, xk);
-            strIt.append(String.format(" %02d\t%.6f \t %.6f \t %.6f \t %.6f \n",cont+1 ,a ,b ,xk ,fx_linha ));
+            strIt.append(String.format(" %02d\t%.6f \t %.6f \t %.6f \t %.6f \n", k+1 ,a ,b ,xk ,fx_linha ));
             if(fx_linha > 0)
                 b = xk;
             else if(fx_linha < 0)
                 a = xk; 
-            System.out.println("num it\n "+ cont);
-        } while (++cont < num_it);
+            System.out.println("num it\n "+ k);
+        } while (++k < num_it);
         x_otimo = (a + b) / 2;
         strIt.append(String.format(" --------\t%.6f \t %.6f \t -------- \t -------- \t\n",a,b));
         try {
@@ -476,6 +477,31 @@ public class Janela extends JFrame{
     }
     //----------------------------------------METODO DE NEWTON----------------------------------------------------------------
     public void newton(String func, double val_a, double val_b, double val_epsilon){
+        double fx_linha = 0, fxkmais1_linha = 0,fx_duaslinhas = 0, xk = val_a, x_kmais1 = 0, fx_otimo = 0;
+        double cp = Double.MAX_VALUE;
+        int k = 0;
+        strIt.append(" k\txk \t f '(xk) \t f \"(xk) \t xk+1 \t f '(xk+1) \t CP \n");
+        while(cp > val_epsilon){
+            fx_linha = derivadaPrimeira(func, xk);
+            fx_duaslinhas = derivadaSegunda(func, xk);
+            x_kmais1 = xk - (fx_linha / fx_duaslinhas);
+            fxkmais1_linha = derivadaPrimeira(func, x_kmais1);
+            cp = Math.abs(x_kmais1 - xk) / Math.max(Math.abs(x_kmais1), 1.0);
+            System.out.println("valor de cp "+ cp);
+            strIt.append(String.format(" %02d\t%.6f \t %.6f \t %.6f \t %.6f \t %.6f \t %.6f\n", ++k ,xk ,fx_linha ,fx_duaslinhas ,x_kmais1, fxkmais1_linha, cp));
+            xk = x_kmais1;
+        }
+        try {
+            fx_otimo = Interpretador.FxR1(func, x_kmais1);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        strIt.append("\n\tx* = " + x_kmais1 + "\n\tf(x*) = "+ fx_otimo +"\n");
+        txtIt.setText(strIt.toString());
+        txtX.setText(""+xk);
+
         
        // JOptionPane.showMessageDialog(this, "Método não implementado!", "Erro", JOptionPane.ERROR_MESSAGE);
     }
