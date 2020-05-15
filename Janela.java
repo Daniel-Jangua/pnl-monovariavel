@@ -447,7 +447,6 @@ public class Janela extends JFrame{
     //----------------------------------------METODO DA BISSECAO----------------------------------------------------------------
     public void bissecao(String func, double val_a, double val_b, double val_epsilon){
         double num_it = 0, fx_linha = 0, xk = 0, x_otimo = 0, fx_otimo = 0;
-        double alfa = (-1 + Math.sqrt(5)) / 2;
         double a = val_a; b = val_b;
         int cont = 0;
         num_it = Math.round(Math.abs(Math.log(val_epsilon/(b - a)) / Math.log(2)));
