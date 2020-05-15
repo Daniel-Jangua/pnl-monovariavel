@@ -27,7 +27,7 @@ public class Janela extends JFrame{
     JRadioButton buni,bdic,fib,bis,newton,secau;
     JTextArea txtIt;
     ButtonGroup selecMet;
-
+    final int MAX_IT = 30000;
     String f = "";
     double a = 0, b = 0, x = 0;
     double delta = 0, epsilon = 0;
@@ -50,10 +50,12 @@ public class Janela extends JFrame{
         txtX = new JTextField(10);
         txtX.setEditable(false);
         Image imGo = null,imClear = null,imStop = null;
+        ImageIcon icon = null;
         try{
             imGo = ImageIO.read(getClass().getResource("Imagens/forward.gif"));
             imClear = ImageIO.read(getClass().getResource("Imagens/delete.gif"));
             imStop = ImageIO.read(getClass().getResource("Imagens/stop2.gif")); 
+            icon = new ImageIcon("Imagens/MNC-Raízes.ico");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Imagem de ícone não encontrada!\n" + e.toString());
             System.exit(1);
@@ -218,23 +220,57 @@ public class Janela extends JFrame{
                     return;
                 }
                 strIt.delete(0, strIt.length());
-                if(buni.isSelected()){
-                    buscaUniforme(f, a, b, delta);
-                }else if(bdic.isSelected()){
-                    buscaDico(f, a, b, delta, epsilon);
-                }else if(secau.isSelected()){
-                    secaoAurea(f, a, b, epsilon);
-                }else if(fib.isSelected()){
-                    fibonacci(f, a, b, epsilon);
-                }else if(bis.isSelected()){
-                    bissecao(f, a, b, epsilon);
-                }else{
-                    newton(f, a, b, epsilon);
-                }
-                
+                //Thread para  realizar o cálculo fora da Thread do Swing
+                Thread calc_thread = new Thread(){
+                    public void run(){
+                        txtFx.setEditable(false);
+                        txtA.setEditable(false);
+                        txtB.setEditable(false);
+                        txtD.setEditable(false);
+                        txtE.setEditable(false);
+                        btnClear.setEnabled(false);
+                        btnGo.setEnabled(false);
+                        buni.setEnabled(false);
+                        bdic.setEnabled(false);
+                        secau.setEnabled(false);
+                        fib.setEnabled(false);
+                        bis.setEnabled(false);
+                        newton.setEnabled(false);
+                        if(buni.isSelected()){
+                            buscaUniforme(f, a, b, delta);
+
+                        }else if(bdic.isSelected()){
+                            buscaDico(f, a, b, delta, epsilon);
+                        }else if(secau.isSelected()){
+                            secaoAurea(f, a, b, epsilon);
+                        }else if(fib.isSelected()){
+                            fibonacci(f, a, b, epsilon);
+                        }else if(bis.isSelected()){
+                            bissecao(f, a, b, epsilon);
+                        }else{
+                            newton(f, a, b, epsilon);
+                        }
+                        txtFx.setEditable(true);
+                        txtA.setEditable(true);
+                        txtB.setEditable(true);
+                        btnClear.setEnabled(true);
+                        btnGo.setEnabled(true);
+                        if(buni.isSelected() || bdic.isSelected())
+                            txtD.setEditable(true);
+                        if(!buni.isSelected())
+                            txtE.setEditable(true);
+                        buni.setEnabled(true);
+                        bdic.setEnabled(true);
+                        secau.setEnabled(true);
+                        fib.setEnabled(true);
+                        bis.setEnabled(true);
+                        newton.setEnabled(true);
+                    }
+                };
+                calc_thread.start();
             }
         });
-
+        this.setIconImage(icon.getImage());
         this.setLayout(null);
         this.add(pnSup);
         this.add(pnInf);
@@ -254,7 +290,7 @@ public class Janela extends JFrame{
         x = val_a;
         int k = 0;
         strIt.append(" k \t p \t q \t f(p) \t f(q) \t f(q) < f(p) \t Δ \n");
-        while(q <= val_b && k < 10000){
+        while(q <= val_b && k < MAX_IT){
             k++;
             try {
                 fp = Interpretador.FxR1(func, p);
@@ -290,7 +326,7 @@ public class Janela extends JFrame{
             }
         }
         x = val_b;
-        if(k >= 10000)
+        if(k >= MAX_IT)
             JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         txtX.setText(""+x);
         double fb = 0;
@@ -311,7 +347,7 @@ public class Janela extends JFrame{
         double fx = 0,fz = 0;
         int k = 0;
         strIt.append(" k \t a \t b \t x \t z \t f(x) \t f(z) \t b-a \n");
-        while(val_b-val_a >= val_epsilon && k < 10000){
+        while(val_b-val_a >= val_epsilon && k < MAX_IT){
             k++;
             base = (val_b+val_a)/2;
             val_x = base - val_delta;
@@ -336,7 +372,7 @@ public class Janela extends JFrame{
             JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+ex.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if(k >= 10000)
+        if(k >= MAX_IT)
             JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         txtX.setText(""+x);
         strIt.append(String.format(" %02d\t%.6f \t %.6f \t -------- \t -------- \t -------- \t -------- \t %.6f\n",k+1,val_a,val_b,val_b-val_a));
@@ -353,7 +389,7 @@ public class Janela extends JFrame{
         
         int k = 0;
         strIt.append(" k \t a \t b \t μ \t λ \t f(μ) \t f(λ) \t f(μ)<f(λ) \n");
-        while(val_b - val_a > val_epsilon && k < 10000) {
+        while(val_b - val_a > val_epsilon && k < MAX_IT) {
 	        mi = val_a + beta*(val_b - val_a);
 	        lambda = val_a + alfa*(val_b - val_a);
 	        try {
@@ -386,7 +422,7 @@ public class Janela extends JFrame{
 			JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if(k >= 10000)
+        if(k >= MAX_IT)
             JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fx +"\n");
         txtIt.setText(strIt.toString());
@@ -410,7 +446,7 @@ public class Janela extends JFrame{
         int maxIt = n - 1;
         double mi = 0, lambda = 0,fmi = 0,flam = 0;
         int k;
-        for( k = 0; k < maxIt && k < 10000; k++){
+        for( k = 0; k < maxIt && k < MAX_IT; k++){
             mi = val_a + list_fib.get(n-k-2)/Double.valueOf(list_fib.get(n-k))*(val_b-val_a);
             lambda = val_a + list_fib.get(n-k-1)/Double.valueOf(list_fib.get(n-k))*(val_b-val_a);
             try {
@@ -438,7 +474,7 @@ public class Janela extends JFrame{
             JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+ex.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if(k >= 10000)
+        if(k >= MAX_IT)
             JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         strIt.append("\n\tx* = " + x + "\n\tf(x*) = "+ fx +"\n");
         txtIt.setText(strIt.toString());
@@ -460,8 +496,8 @@ public class Janela extends JFrame{
                 b = xk;
             else if(fx_linha < 0)
                 a = xk; 
-            System.out.println("num it\n "+ k);
-        } while (++k < num_it);
+            //System.out.println("num it\n "+ k);
+        } while (++k < num_it && k < MAX_IT);
         x_otimo = (a + b) / 2;
         strIt.append(String.format(" --------\t%.6f \t %.6f \t -------- \t -------- \t\n",a,b));
         try {
@@ -470,6 +506,8 @@ public class Janela extends JFrame{
             JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
                 return;
         }
+        if(k >= MAX_IT)
+            JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         strIt.append("\n\tx* = " + x_otimo + "\n\tf(x*) = "+ fx_otimo +"\n");
         txtIt.setText(strIt.toString());
         txtX.setText(""+xk);
@@ -481,13 +519,13 @@ public class Janela extends JFrame{
         double cp = Double.MAX_VALUE;
         int k = 0;
         strIt.append(" k\txk \t f '(xk) \t f \"(xk) \t xk+1 \t f '(xk+1) \t CP \n");
-        while(cp > val_epsilon){
+        while(cp > val_epsilon && k < MAX_IT){
             fx_linha = derivadaPrimeira(func, xk);
             fx_duaslinhas = derivadaSegunda(func, xk);
             x_kmais1 = xk - (fx_linha / fx_duaslinhas);
             fxkmais1_linha = derivadaPrimeira(func, x_kmais1);
             cp = Math.abs(x_kmais1 - xk) / Math.max(Math.abs(x_kmais1), 1.0);
-            System.out.println("valor de cp "+ cp);
+            //System.out.println("valor de cp "+ cp);
             strIt.append(String.format(" %02d\t%.6f \t %.6f \t %.6f \t %.6f \t %.6f \t %.6f\n", ++k ,xk ,fx_linha ,fx_duaslinhas ,x_kmais1, fxkmais1_linha, cp));
             xk = x_kmais1;
         }
@@ -497,7 +535,8 @@ public class Janela extends JFrame{
             JOptionPane.showMessageDialog(this, "Erro na avaliação da função!\n"+e.toString(),"Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+        if(k >= MAX_IT)
+            JOptionPane.showMessageDialog(this, "Máximo de iterações atingido!\n","Atenção", JOptionPane.WARNING_MESSAGE);
         strIt.append("\n\tx* = " + x_kmais1 + "\n\tf(x*) = "+ fx_otimo +"\n");
         txtIt.setText(strIt.toString());
         txtX.setText(""+xk);
@@ -604,6 +643,7 @@ public class Janela extends JFrame{
     }
 
     public static void main(String args []){
-        new Janela("Trabalho PO II: PNL Monovariável");
+        Janela jan = new Janela("Trabalho PO II: PNL Monovariável");
+        JOptionPane.showMessageDialog(jan, "<html><body><p width='200px' align='justify'>Ao utilizar funções trigonométricas acrescente 'r' ao final do nome da função para realizar o cálculo em radianos (ex.: sinr(x)).</p></body></html>", "Importante!",JOptionPane.INFORMATION_MESSAGE);
     }
 }
